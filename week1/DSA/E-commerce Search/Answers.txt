@@ -1,0 +1,4 @@
+- Big-O notation help us to quantify the performance of an algorithm by studying its
+worst case complexity of time and space. By analysing the Big-O notation, we can
+optimize our algorithm so that it performs better.
+-

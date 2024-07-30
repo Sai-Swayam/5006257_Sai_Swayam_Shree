@@ -1,0 +1,29 @@
+Large inventories have a lot of products stored in them, whose management (taking time and money into consideration) is really important.
+
+Faster retrieval and faster searching of products and addition and removal of products into the inventory is needed.
+Since homogeneous objects labelled as products are involved, Array, Array List or LinkedList are the data structures that are fit to this problem.
+
+1. Array/Array List:
+	It is suitable for easy and fast retrieval of products just by their index, and is easy to implement.
+	But problem would be searching for a product based on a particular property of the product other than its index.
+	For deletion, we have to shift all the products from the right one by one which is a big problem.
+	Time Complexity :
+	    Adding products would take O(1) ( in arraylist, it may take O(n) when resizing the array ), Removal would take worst of O(n) and best of O(1), updation would take O(1) when index is known
+	    and searching takes at worst O(n). Space complexity would be O(n) because we are contiguously placing 'n' products
+
+
+2. Linked List: 
+	Not as efficient as the index based retrieval of Arrays.
+	But removal is very simple.(We don't have to shift elements unlike arraylist)
+	Time Complexity :
+	    Insertion at begining takes O(1) and takes O(n) for the end. If order of products is not a concern, we can stick
+	    to inserting products at the begining.
+	    Same for Deletion. Search takes O(n)
+
+
+3. HashMap:
+	Perfect for large sized inventories.
+	Can easily search for items based on some property on which hash map will be used.
+    Time Complexity :
+    Addition would take O(1) and in case of collision, would take O(n)
+    same for removal, updation and searching
