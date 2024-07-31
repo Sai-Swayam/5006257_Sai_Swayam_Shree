@@ -1,0 +1,8 @@
+Arrays is a set of continuous memory location capable of holding homogenous type of data (data of same
+type) whose base address is held by the array name. The other elements of the array are accessed by
+using the [] operator inside which we pass in the index, and JVM then finds the offset of that index from
+the base address and accesses the element that we need.
+
+The limitation of arrays happen when we have to delete an element. To achieve it, we need to shift all
+the elements to the right of the deleted element one by one, which adds another layer of complexity to
+the problem.

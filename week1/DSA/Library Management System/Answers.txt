@@ -1,0 +1,13 @@
+Linear Search would take O(n) time complexity and space complexity.
+Meanwhile binary search would take time complexity of O(logn) which is a significant improvement
+over Linear Search.
+In the following problem statement, I have used the compareTo method of Java.util.Collections which
+helps in the comparison of the characters of two strings lexicographically. This is helpful for the binary
+search algorithm as it relies on the continuous selection of the 'mid' element and comparison of the target
+string with the mid element till we reach the element we desire.
+
+Pros and Cons:
+Linear search is simple, and can work with unsorted data, but is much slower than binary search.
+Binary search on the other hand is much faster than linear search and is immensely helpful for large datasets,
+but the only catch is that it needs sorted data set to function properly, which adds another overhead to the
+problem.

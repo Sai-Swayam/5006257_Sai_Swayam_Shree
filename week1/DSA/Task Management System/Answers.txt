@@ -1,0 +1,17 @@
+There are two types of linked lists in a broader sense, mainly Singly Linked List and Doubly Linked List.
+Singly linked list has one head reference, which can be used to traverse the linked list, but only in one
+direction, and each nodes of the linked list only carry reference of their next node (single direction)
+Meanwhile, in Doubly Linked List, there are two root references, called head and tail, and all the nodes have
+two references, one to the next node of the list and other of the previous node of the list.
+Doubly Linked list might take more auxiliary space but is more efficient in some use cases.
+
+The TaskLinkedList class object has a singly linked list in it which stores nodes of the objects of
+class Task.
+Addition of a node needs to the traversal to the end of the list, hence the time complexity would be O(n)
+Removal of a node needs similar traversal, hence the worst case time complexity would be O(n).
+Same for traversal and searching.
+
+For dynamic data, Linked List reigns over Array, because, for removal of a node, we can simply traverse to
+the node previous to the node we want to delete and then change the links. But for array, we would have to
+delete the element of the specific index and then one by one shift all the elements to the right of that
+index, which would add another task to solve.
