@@ -22,7 +22,9 @@
         </aop:aspect>
     </aop:config>
 
-    <bean id="BookService" class="com.library.service.BookService"></bean>
+    <bean id="BookService" class="com.library.service.BookService">
+        <property name="BookRepository" ref="BookRepository"/>
+    </bean>
 
     <bean id="BookRepository" class="com.library.repository.BookRepository"></bean>
 

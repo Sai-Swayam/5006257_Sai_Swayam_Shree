@@ -1,0 +1,319 @@
+1)
+	Senario 1:
+		
+		BEGIN
+  			FOR x IN (
+   				SELECT l.LoanID, l.InterestRate
+   	 			FROM Loans as l
+    				JOIN Customers c ON l.CustomerID = c.CustomerID
+    				WHERE c.DOB <= SYSDATE - INTERVAL '60' YEAR) LOOP
+    				UPDATE Loans
+    				SET InterestRate = x.InterestRate * 0.99
+    				WHERE LoanID = x.LoanID;
+  			END LOOP;
+  			COMMIT;
+		END;
+
+	Scenario 2:
+		
+		ALTER TABLE Customers ADD IsVIP CHAR(1);
+
+		BEGIN
+  			FOR x IN (SELECT CustomerID
+    				FROM Customers
+    				WHERE Balance > 10000) LOOP
+    				UPDATE Customers
+    				SET IsVIP = 'Y'
+    				WHERE CustomerID =x.CustomerID;
+  			END LOOP;
+  			COMMIT;
+		END;
+
+	
+	Scenario 3:
+
+		BEGIN
+  			FOR x IN (SELECT l.LoanID, c.Name, l.EndDate
+    				FROM Loans l
+    				JOIN Customers c ON l.CustomerID = c.CustomerID
+    				WHERE l.EndDate BETWEEN SYSDATE AND SYSDATE + 30) LOOP
+    				DBMS_OUTPUT.PUT_LINE('Hello Customer ' || x.Name || 
+                         		' with Loan ID ' || x.LoanID || 
+                         		' you have a due date of ' || x.EndDate ||
+					' kindly pay the loans');
+  			END LOOP;
+		END;
+
+2)
+	scenario 1:
+
+		CREATE OR REPLACE PROCEDURE SafeTransferFunds(
+    			from_acc_id IN NUMBER,
+    			to_acc_id IN NUMBER,
+    			amount IN NUMBER) AS
+    			balance NUMBER;
+		BEGIN
+    
+    			SELECT Balance INTO balance
+    				FROM Accounts
+    				WHERE AccountID = from_acc_id;
+
+    			IF balance < amount THEN
+        			DBMS_OUTPUT.PUT_LINE('Insufficient funds in account ' || from_acc_id);
+			ELSE
+    				UPDATE Accounts
+    				SET Balance = Balance - amount,
+        			LastModified = SYSDATE
+    				WHERE AccountID = from_acc_id;
+
+    				UPDATE Accounts
+    				SET Balance = Balance + amount,
+        			LastModified = SYSDATE
+    				WHERE AccountID = to_acc_id;
+
+    				COMMIT;
+			END IF;
+		EXCEPTION
+    			WHEN OTHERS THEN
+        		ROLLBACK;
+        		DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+		END SafeTransferFunds;
+
+	scenario 2:
+
+		CREATE OR REPLACE PROCEDURE UpdateSalary(
+    			emp_id IN NUMBER,
+    			percentage IN NUMBER) AS salary NUMBER;
+		BEGIN
+    
+    			SELECT Salary INTO salary
+    			FROM Employees
+    			WHERE EmployeeID = emp_id;
+
+    			UPDATE Employees
+    			SET Salary = Salary + (Salary * percentage / 100)
+    			WHERE EmployeeID = emp_id;
+
+    			COMMIT;
+		EXCEPTION
+    			WHEN NO_DATA_FOUND THEN
+        		DBMS_OUTPUT.PUT_LINE('Error: Employee ID ' || emp_id || ' does not exist.');
+    			WHEN OTHERS THEN
+        		ROLLBACK;
+        		DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+
+		END UpdateSalary;
+
+	scenario 3:
+
+		CREATE OR REPLACE PROCEDURE AddNewCustomer(
+    			cust_id IN NUMBER,
+    			name IN VARCHAR2,
+    			dob IN DATE,
+    			balance IN NUMBER) AS
+			BEGIN
+    
+    				INSERT INTO Customers (CustomerID, Name, DOB, Balance, LastModified)
+    				VALUES (cust_id, name, dob, balance, SYSDATE);
+
+    				COMMIT;
+			EXCEPTION
+    				WHEN DUP_VAL_ON_INDEX THEN
+        			DBMS_OUTPUT.PUT_LINE('Error: Customer ID ' || cust_id || ' already exists.');
+    				WHEN OTHERS THEN
+        			ROLLBACK;
+        			DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+
+			END AddNewCustomer;
+
+3)
+	scenario 1:
+		
+		CREATE OR REPLACE PROCEDURE ProcessMonthlyInterest
+		AS
+		BEGIN
+       			UPDATE Accounts
+   	 		SET Balance = Balance * 1.01
+    			WHERE AccountType = 'Savings';
+			COMMIT; 
+		EXCEPTION
+   	 		WHEN OTHERS THEN
+        		ROLLBACK;        
+			DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+		END ProcessMonthlyInterest;
+
+	scenario 2:
+		
+		CREATE OR REPLACE PROCEDURE UpdateEmployeeBonus(
+    			dep IN VARCHAR2,
+    			bonus_percentage IN NUMBER) AS
+		BEGIN
+    			UPDATE Employees
+    			SET Salary = Salary + (Salary * bonus_percentage / 100)
+    			WHERE Department = dep;
+    			COMMIT;
+		EXCEPTION
+    			WHEN OTHERS THEN
+        		ROLLBACK;
+        		DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+		END UpdateEmployeeBonus;
+
+	scenario 3:
+
+		CREATE OR REPLACE PROCEDURE CheckFundAvailability(
+    			from_acc_id IN NUMBER,
+    			amount IN NUMBER) AS
+    			balance NUMBER;
+		BEGIN
+    			SELECT Balance INTO balance
+    			FROM Accounts
+    			WHERE AccountID = from_acc_id;
+
+		    	IF v_balance < amount THEN
+        			DBMS_OUTPUT.PUT_LINE('Insufficient funds in account ' || from_acc_id);
+    			ELSE
+        			DBMS_OUTPUT.PUT_LINE('Sufficient funds available in account ' || from_acc_id);
+    			END IF;
+
+		EXCEPTION
+    			WHEN NO_DATA_FOUND THEN
+        		DBMS_OUTPUT.PUT_LINE('Error: Account ' || from_acc_id || ' not found.');
+    			WHEN OTHERS THEN
+        		DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+		END CheckFundAvailability;
+
+		
+
+		
+
+///
+
+
+
+-- Exercise 4: Functions
+
+-- Scenario 1: Calculate Age
+CREATE OR REPLACE FUNCTION CalculateAge(p_dob DATE) RETURN NUMBER IS
+BEGIN
+    RETURN FLOOR(MONTHS_BETWEEN(SYSDATE, p_dob) / 12);
+END;
+/
+
+-- Scenario 2: Calculate Monthly Installment
+CREATE OR REPLACE FUNCTION CalculateMonthlyInstallment(
+    p_loan_amount NUMBER,
+    p_interest_rate NUMBER,
+    p_duration_years NUMBER
+) RETURN NUMBER IS
+    p_monthly_rate NUMBER;
+    p_number_of_months NUMBER;
+BEGIN
+    p_monthly_rate := p_interest_rate / 12 / 100;
+    p_number_of_months := p_duration_years * 12;
+
+    RETURN p_loan_amount * p_monthly_rate / (1 - POWER(1 + p_monthly_rate, -p_number_of_months));
+END;
+/
+
+-- Scenario 3: Check Sufficient Balance
+CREATE OR REPLACE FUNCTION HasSufficientBalance(
+    p_account_id NUMBER,
+    p_amount NUMBER
+) RETURN BOOLEAN IS
+    v_balance NUMBER;
+BEGIN
+    SELECT Balance INTO v_balance
+    FROM Accounts
+    WHERE AccountID = p_account_id;
+
+    RETURN v_balance >= p_amount;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        RETURN FALSE;
+END;
+/
+
+-- Exercise 5: Triggers
+
+-- Scenario 1: Update Last Modified Date
+CREATE OR REPLACE TRIGGER UpdateCustomerLastModified
+BEFORE UPDATE ON Customers
+FOR EACH ROW
+BEGIN
+    :NEW.LastModified := SYSDATE;
+END;
+/
+
+-- Scenario 2: Log Transactions
+CREATE OR REPLACE TRIGGER LogTransaction
+AFTER INSERT ON Transactions
+FOR EACH ROW
+BEGIN
+    INSERT INTO AuditLog (TransactionID, LogDate, Action)
+    VALUES (:NEW.TransactionID, SYSDATE, 'Transaction Inserted');
+END;
+/
+
+-- Scenario 3: Check Transaction Rules
+CREATE OR REPLACE TRIGGER CheckTransactionRules
+BEFORE INSERT ON Transactions
+FOR EACH ROW
+BEGIN
+    IF :NEW.TransactionType = 'Withdrawal' THEN
+        IF (SELECT Balance FROM Accounts WHERE AccountID = :NEW.AccountID) < :NEW.Amount THEN
+            RAISE_APPLICATION_ERROR(-20006, 'Insufficient balance for withdrawal.');
+        END IF;
+    ELSIF :NEW.TransactionType = 'Deposit' THEN
+        IF :NEW.Amount <= 0 THEN
+            RAISE_APPLICATION_ERROR(-20007, 'Deposit amount must be positive.');
+        END IF;
+    END IF;
+END;
+/
+
+-- Exercise 6: Cursors
+
+-- Scenario 1: Generate Monthly Statements
+DECLARE
+    CURSOR c_monthly_transactions IS
+        SELECT AccountID, TransactionDate, Amount, TransactionType
+        FROM Transactions
+        WHERE TRUNC(TransactionDate, 'MM') = TRUNC(SYSDATE, 'MM');
+BEGIN
+    FOR rec IN c_monthly_transactions LOOP
+        DBMS_OUTPUT.PUT_LINE(
+            'Account ID: ' || rec.AccountID || 
+            ', Date: ' || rec.TransactionDate || 
+            ', Amount: ' || rec.Amount || 
+            ', Type: ' || rec.TransactionType
+        );
+    END LOOP;
+END;
+/
+
+-- Scenario 2: Apply Annual Fee
+DECLARE
+    CURSOR c_accounts IS
+        SELECT AccountID, Balance
+        FROM Accounts;
+BEGIN
+    FOR rec IN c_accounts LOOP
+        UPDATE Accounts
+        SET Balance = Balance - 50  -- Assuming an annual fee of $50
+        WHERE AccountID = rec.AccountID;
+    END LOOP;
+    COMMIT;
+END;
+/
+
+-- Scenario 3: Update Loan Interest Rates
+DECLARE
+    CURSOR c_loans IS
+        SELECT LoanID, InterestRate
+        FROM Loans;
+BEGIN
+    FOR rec IN c_loans LOOP
+        UPDATE Loans
+        SET InterestRate = InterestRate * 1.02  -- Assuming a 2% increase
+	
+			
