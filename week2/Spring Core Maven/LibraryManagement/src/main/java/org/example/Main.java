@@ -10,8 +10,8 @@ public class Main {
 
         BeanFactory factory = new ClassPathXmlApplicationContext("applicationContext.xml");
         BookService obj1 = (BookService)factory.getBean("BookService");
-        obj1.run();
+        obj1.service();
         BookRepository obj2 = (BookRepository)factory.getBean("BookRepository");
-        obj2.run();
+        obj2.repository();
     }
 }

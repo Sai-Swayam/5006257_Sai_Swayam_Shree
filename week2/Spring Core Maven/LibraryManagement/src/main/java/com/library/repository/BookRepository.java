@@ -1,7 +1,7 @@
 package com.library.repository;
 
 public class BookRepository {
-    public void run() {
+    public void repository() {
         System.out.println("Book repository");
     }
 }
